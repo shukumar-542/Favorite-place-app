@@ -8,7 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import AllPlaces from "./screens/AllPlaces";
 import AddPlace from "./screens/AddPlace";
-import IconButton from "./components/Places/UI/IconButton";
+import IconButton from "./components/UI/IconButton";
 import { Colors } from "./constant/colors";
 
 const Stack = createNativeStackNavigator();
