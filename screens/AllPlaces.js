@@ -1,12 +1,12 @@
-import React from 'react'
-import { Text } from 'react-native'
+
+import PlacesList from '../components/Places/PlacesList';
 
 const AllPlaces = () => {
-  return (
-    <Text>
-       All Places 
-    </Text>
-  )
-}
 
-export default AllPlaces
+
+  return (
+    <PlacesList/>
+  );
+};
+
+export default AllPlaces;

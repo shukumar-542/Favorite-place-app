@@ -1,36 +1,59 @@
+import { useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import * as Font from "expo-font";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
+import { View } from "react-native";
 import AllPlaces from "./screens/AllPlaces";
 import AddPlace from "./screens/AddPlace";
-import IconButton from "./components/UI/IconButton";
+import IconButton from "./components/Places/UI/IconButton";
+import { Colors } from "./constant/colors";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync(Ionicons.font);
+      setFontsLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return null; // or a loading screen
+  }
+
   return (
-    <>
-      <StatusBar style="dark" />
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="AllPlaces"
-            component={AllPlaces}
-            options={({ navigation }) => ({
-              headerRight: ({ tintColor }) => (
-                <IconButton
-                  color={tintColor}
-                  size={30}
-                  icon="add"
-                  onPress={() => navigation.navigate("AddPlaces")}
-                />
-              ),
-            })}
-          />
-          <Stack.Screen name="AddPlaces" component={AddPlace} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerTintColor: Colors.gray700,
+          headerStyle  : {backgroundColor : Colors.primary500},
+          contentStyle  : {backgroundColor : Colors.gray700}
+        }}
+      >
+        <Stack.Screen
+          name="AllPlaces"
+          component={AllPlaces}
+          options={({ navigation }) => ({
+            title: "All Places",
+            headerRight: ({ tintColor }) => (
+              <IconButton
+                icon="add"
+                size={24}
+                color={tintColor || "black"}
+                onPress={() => navigation.navigate("AddPlace")}
+              />
+            ),
+          })}
+        />
+        <Stack.Screen name="AddPlace" component={AddPlace} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
