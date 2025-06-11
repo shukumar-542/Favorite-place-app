@@ -52,7 +52,9 @@ export default function App() {
             ),
           })}
         />
-        <Stack.Screen name="AddPlace" component={AddPlace} />
+        <Stack.Screen name="AddPlace" component={AddPlace} options={{
+          title : "Add New Places"
+        }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
