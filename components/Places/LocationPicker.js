@@ -16,7 +16,7 @@ import {
   useRoute,
 } from "@react-navigation/native";
 
-const LocationPicker = () => {
+const LocationPicker = ({onLocationPick}) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const route = useRoute();
@@ -32,7 +32,11 @@ const LocationPicker = () => {
       };
       setPickedLocation(mapPickedLocation);
     }
-  }, [route, isFocused]); // Dependencies are correct here
+  }, [route, isFocused]); 
+
+  useEffect(()=>{
+    onLocationPick(pickedLocation)
+  }, [pickedLocation , onLocationPick])
 
   const verifyPermission = async () => {
     if (
