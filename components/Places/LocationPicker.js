@@ -10,8 +10,10 @@ import {
 import { Linking } from "react-native";
 import { openSettings } from "expo-linking";
 import { getMapPreview } from "../../util/location";
+import { useNavigation } from "@react-navigation/native";
 
 const LocationPicker = () => {
+  const navigation  = useNavigation()
   const [pickedLocation, setPickedLocation] = useState();
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
@@ -51,9 +53,11 @@ const LocationPicker = () => {
       lng: location.coords.latitude,
     });
   };
-  const getOnMapHandler = () => {};
+  const getOnMapHandler = () => {
+    navigation.navigate("Map")
+  };
 
-  let locationPreview = <Text>No Location Picked Yet!</Text>;
+  let locationPreview = <Text style={styles.text}>No Location Picked Yets!</Text>;
   if (pickedLocation) {
     locationPreview = (
       <Image
@@ -63,12 +67,9 @@ const LocationPicker = () => {
         }}
       />
     );
-    console.log(
-      `https://maps.googleapis.com/maps/api/staticmap?center=${pickedLocation.lat},${pickedLocation.lng}&zoom=14&size=400x200&key=AIzaSyA7mwpg7GgJ13gtwylXV1taugaUwr9KMhE`
-    );
+   
   }
 
-  // console.log(pickedLocation);
   return (
     <View>
       <View style={styles.mapPreview}>{locationPreview}</View>
@@ -104,4 +105,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  text : {
+    textAlign : 'center'
+  }
 });
