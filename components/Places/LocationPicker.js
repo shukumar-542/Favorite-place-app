@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Image, StyleSheet, Text, View } from "react-native";
 import OutlinedButton from "../UI/OutlinedButton";
 import { Colors } from "../../constant/colors";
@@ -10,13 +10,30 @@ import {
 import { Linking } from "react-native";
 import { openSettings } from "expo-linking";
 import { getMapPreview } from "../../util/location";
-import { useNavigation } from "@react-navigation/native";
+import {
+  useIsFocused,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 
 const LocationPicker = () => {
-  const navigation  = useNavigation()
+  const navigation = useNavigation();
+  const isFocused = useIsFocused();
+  const route = useRoute();
   const [pickedLocation, setPickedLocation] = useState();
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
+
+  useEffect(() => {
+    if (isFocused && route.params) {
+      const mapPickedLocation = { // No need for route.params && again here
+        lat: route.params.pickedLat,
+        lng: route.params.pickedLng,
+      };
+      setPickedLocation(mapPickedLocation);
+    }
+  }, [route, isFocused]); // Dependencies are correct here
+
   const verifyPermission = async () => {
     if (
       locationPermissionInformation.status === PermissionStatus.UNDETERMINED
@@ -24,8 +41,6 @@ const LocationPicker = () => {
       const permissionResponse = await requestPermission();
       return permissionResponse.granted;
     }
-
-    // console.log(locationPermissionInformation.status);
 
     if (locationPermissionInformation.status === PermissionStatus.DENIED) {
       Alert.alert(
@@ -36,8 +51,9 @@ const LocationPicker = () => {
           { text: "Open Settings", onPress: () => openSettings() },
         ]
       );
+      return false; // Return false if permission is denied
     }
-    return true;
+    return true; // Return true if permission is granted
   };
 
   const getLocationHandler = async () => {
@@ -46,18 +62,29 @@ const LocationPicker = () => {
       return;
     }
 
-    const location = await getCurrentPositionAsync();
+    try {
+      const location = await getCurrentPositionAsync();
 
-    setPickedLocation({
-      lat: location.coords.latitude,
-      lng: location.coords.latitude,
-    });
+      setPickedLocation({
+        lat: location.coords.latitude,
+        lng: location.coords.longitude, // CORRECTED HERE
+      });
+    } catch (error) {
+      console.error("Error getting current position:", error);
+      Alert.alert(
+        "Location Error",
+        "Could not fetch location. Please try again."
+      );
+    }
   };
+
   const getOnMapHandler = () => {
-    navigation.navigate("Map")
+    navigation.navigate("Map");
   };
 
-  let locationPreview = <Text style={styles.text}>No Location Picked Yets!</Text>;
+  let locationPreview = (
+    <Text style={styles.text}>No Location Picked Yets!</Text>
+  );
   if (pickedLocation) {
     locationPreview = (
       <Image
@@ -67,7 +94,6 @@ const LocationPicker = () => {
         }}
       />
     );
-   
   }
 
   return (
@@ -105,7 +131,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  text : {
-    textAlign : 'center'
-  }
+  text: {
+    textAlign: "center",
+  },
 });
