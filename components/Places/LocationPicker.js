@@ -1,4 +1,5 @@
-import { Alert, StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Alert, Image, StyleSheet, Text, View } from "react-native";
 import OutlinedButton from "../UI/OutlinedButton";
 import { Colors } from "../../constant/colors";
 import {
@@ -6,38 +7,71 @@ import {
   PermissionStatus,
   useForegroundPermissions,
 } from "expo-location";
+import { Linking } from "react-native";
+import { openSettings } from "expo-linking";
+import { getMapPreview } from "../../util/location";
 
 const LocationPicker = () => {
+  const [pickedLocation, setPickedLocation] = useState();
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
   const verifyPermission = async () => {
-    if (locationPermissionInformation.status === PermissionStatus.UNDETERMINED) {
+    if (
+      locationPermissionInformation.status === PermissionStatus.UNDETERMINED
+    ) {
       const permissionResponse = await requestPermission();
       return permissionResponse.granted;
     }
 
+    // console.log(locationPermissionInformation.status);
+
     if (locationPermissionInformation.status === PermissionStatus.DENIED) {
       Alert.alert(
-        "Insufficient Permission",
-        "You need to grant location permission to use this app!"
+        "Permission Required",
+        "Please enable location permissions in settings.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: () => openSettings() },
+        ]
       );
     }
     return true;
   };
+
   const getLocationHandler = async () => {
-    const hasPermission = await verifyPermission()
-    if(!hasPermission){
-        return
+    const hasPermission = await verifyPermission();
+    if (!hasPermission) {
+      return;
     }
-    
+
     const location = await getCurrentPositionAsync();
 
-    console.log(location);
+    setPickedLocation({
+      lat: location.coords.latitude,
+      lng: location.coords.latitude,
+    });
   };
   const getOnMapHandler = () => {};
+
+  let locationPreview = <Text>No Location Picked Yet!</Text>;
+  if (pickedLocation) {
+    locationPreview = (
+      <Image
+        style={styles.image}
+        source={{
+          uri: getMapPreview(pickedLocation.lat, pickedLocation.lng),
+        }}
+      />
+    );
+    console.log(
+      `https://maps.googleapis.com/maps/api/staticmap?center=${pickedLocation.lat},${pickedLocation.lng}&zoom=14&size=400x200&key=AIzaSyA7mwpg7GgJ13gtwylXV1taugaUwr9KMhE`
+    );
+  }
+
+  // console.log(pickedLocation);
   return (
     <View>
-      <View style={styles.mapPreview}></View>
+      <View style={styles.mapPreview}>{locationPreview}</View>
       <View style={styles.actions}>
         <OutlinedButton icon={"location"} onPress={getLocationHandler}>
           Locate User
@@ -65,5 +99,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
   },
 });
