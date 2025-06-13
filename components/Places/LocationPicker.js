@@ -9,14 +9,14 @@ import {
 } from "expo-location";
 import { Linking } from "react-native";
 import { openSettings } from "expo-linking";
-import { getMapPreview } from "../../util/location";
+import { getAddress, getMapPreview } from "../../util/location";
 import {
   useIsFocused,
   useNavigation,
   useRoute,
 } from "@react-navigation/native";
 
-const LocationPicker = ({onLocationPick}) => {
+const LocationPicker = ({ onLocationPick }) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const route = useRoute();
@@ -26,17 +26,23 @@ const LocationPicker = ({onLocationPick}) => {
 
   useEffect(() => {
     if (isFocused && route.params) {
-      const mapPickedLocation = { // No need for route.params && again here
+      const mapPickedLocation = {
         lat: route.params.pickedLat,
         lng: route.params.pickedLng,
       };
       setPickedLocation(mapPickedLocation);
     }
-  }, [route, isFocused]); 
+  }, [route, isFocused]);
 
-  useEffect(()=>{
-    onLocationPick(pickedLocation)
-  }, [pickedLocation , onLocationPick])
+  useEffect(() => {
+    async function handleLocation() {
+      if (pickedLocation) {
+        const address =  await getAddress(pickedLocation.lat, pickedLocation.lng);
+        onLocationPick({...pickedLocation , address : address});
+      }
+    }
+    handleLocation()
+  }, [pickedLocation, onLocationPick]);
 
   const verifyPermission = async () => {
     if (
@@ -71,7 +77,7 @@ const LocationPicker = ({onLocationPick}) => {
 
       setPickedLocation({
         lat: location.coords.latitude,
-        lng: location.coords.longitude, // CORRECTED HERE
+        lng: location.coords.longitude,
       });
     } catch (error) {
       console.error("Error getting current position:", error);
