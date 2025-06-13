@@ -8,13 +8,16 @@ const PlacesList = ({places}) => {
         return <View style={styles.fallbackContainer}><Text style={styles.fallbackText} >No Places add yet - start adding some!</Text></View>
     }
   return (
-    <FlatList data={places} keyExtractor={(item)=> item.id} renderItem={({item})=> <PlaceItem place={item} />}  />
+    <FlatList style={styles.list} data={places} keyExtractor={(item)=> item.id} renderItem={({item})=> <PlaceItem place={item} />}  />
   )
 }
 
 export default PlacesList
 
 const styles = StyleSheet.create({
+    list : {
+      margin : 20,  
+    },
     fallbackContainer  :{
         flex : 1,
         justifyContent : 'center',
