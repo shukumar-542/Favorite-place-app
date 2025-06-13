@@ -4,15 +4,14 @@ import { Colors } from "../../constant/colors";
 import ImagePicker from "./ImagePicker";
 import LocationPicker from "./LocationPicker";
 import Button from "../UI/Button";
+import { Place } from "../../models/Place";
 
-const PlaceForm = () => {
+const PlaceForm = ({onCreatePlace}) => {
   const [enteredTitle, setEnteredTitle] = useState("");
   const [pickedLocation, setPickedLocation] = useState();
   const [selectedImage, setSelectedImage] = useState();
 
   const handleChangeTitle = (enteredText) => {
-
-    console.log(enteredText);
     setEnteredTitle(enteredText);
   };
 
@@ -24,9 +23,9 @@ const PlaceForm = () => {
     setPickedLocation(location);
   }, []);
   const savePlaceHandler = () => {
-    console.log("title" , enteredTitle);
-    console.log(selectedImage);
-    console.log(pickedLocation);
+    const placeData = new Place(enteredTitle, selectedImage , pickedLocation )
+    onCreatePlace(placeData)
+   
   };
   return (
     <ScrollView style={styles.form}>
